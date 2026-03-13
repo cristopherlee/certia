@@ -1,0 +1,24 @@
+alterar o fluxo
+    ao inves de fazer npm start, rodar a cli com parametros
+        --feature
+    mostra em tempo real o feedback do terminal
+
+1. recebe a feature para revisar (features)?
+2. pega a lista de pastas que tem a features.json em data/
+3. ver o tipo do projeto (docker-compose, devcontainer, container, none)
+4. se for docker-compose, roda o comando para subir o ambiente
+5. se for devcontainer, roda o comando para abrir o ambiente no vscode
+6. se for container, roda o comando para subir o ambiente
+7. se for none, não faz nada
+
+proximo passo do fluxo?
+    me mostra o link para aprovar
+    se sim,
+        derruba tudo
+        comita  
+        apaga a pasta
+        deleta worktree
+    se não,
+        derruba tudo
+        apaga a pasta
+        deleta worktree

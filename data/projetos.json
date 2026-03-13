@@ -1,0 +1,84 @@
+{
+    "projetos": [
+        {
+            "name": "AUTH-Example",
+            "children": [
+                {
+                    "name": "auth-all-solution",
+                    "git": "git@bitbucket.org:certi_repos/auth-all-solution.git",
+                    "type": "none"
+                },
+                {
+                    "name": "auth-infra",
+                    "git": "git@bitbucket.org:certi_repos/auth-infra",
+                    "type": "docker-compose"
+                },
+                {
+                    "name": "auth-x",
+                    "git": "git@bitbucket.org:certi_repos/auth-x.git",
+                    "type": "devcontainer"
+                },
+                {
+                    "name": "auth-y",
+                    "git": "git@bitbucket.org:certi_repos/auth-y.git",
+                    "type": "docker-compose"
+                }
+            ]
+        },
+        {
+            "name": "OCPE",
+            "children": [
+                {
+                    "name": "oc-all-solution",
+                    "git": "git@bitbucket.org:certi_repos/oc-all-solution.git",
+                    "type": "none",
+                    "folder": "none",
+                    "children": [
+                        {
+                            "name": "oc-oneclickpe-api",
+                            "git": "git@bitbucket.org:certi_repos/oc-oneclickpe-api.git",
+                            "type": "none",
+                            "folder": "services",
+                            "children": []
+                        },
+                        {
+                            "name": "oc-certiio-api",
+                            "git": "git@bitbucket.org:certi_repos/oc-certiio-api.git",
+                            "type": "none",
+                            "folder": "services",
+                            "children": []
+                        },
+                        {
+                            "name": "oc-export-document-api",
+                            "git": "git@bitbucket.org:certi_repos/oc-export-document-api.git",
+                            "type": "none",
+                            "folder": "services",
+                            "children": []
+                        },
+                        {
+                            "name": "oc-frontend",
+                            "git": "git@bitbucket.org:certi_repos/oc-frontend.git",
+                            "type": "none",
+                            "folder": "services",
+                            "children": []
+                        },
+                        {
+                            "name": "oc-grafana",
+                            "git": "git@bitbucket.org:certi_repos/oc-grafana.git",
+                            "type": "none",
+                            "folder": "services",
+                            "children": []
+                        },
+                        {
+                            "name": "oc-wrapper-grafana-api",
+                            "git": "git@bitbucket.org:certi_repos/oc-wrapper-grafana-api.git",
+                            "type": "none",
+                            "folder": "services",
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

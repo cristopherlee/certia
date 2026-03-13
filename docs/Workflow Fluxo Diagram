@@ -1,0 +1,29 @@
+# Diagrama do Workflow "/fluxo.md"
+
+O diagrama abaixo representa de forma visual o ciclo de vida completo do workflow de trabalho paralelo via Git Worktrees definido em `.agent/workflows/fluxo.md`.
+
+```mermaid
+flowchart TD
+    Start([Início]) --> S1[1. Definir Nome da Sessão\n& Verificar master/development]
+    S1 --> S2[2. Criação de Worktrees\nauth-all-solution, auth-infra, auth-x]
+    S2 --> S3[3. Gerenciamento de Portas\nAchar porta livre a partir da 3000]
+    S3 --> S4[4. Atualizar '.env'\nDefinir PORT com a porta livre]
+    S4 --> S5[5. Ajustes no docker-compose.yml\nSufixo da sessão em containers]
+    S5 --> S6[6. Docker Compose Up\nVerificar se serviço subiu na porta]
+    S6 --> Cond0{Conflito de Porta?}
+    Cond0 -- Sim --> S3
+    Cond0 -- Não --> S7[7. Preparação para Entrega\nPassar link ao usuário para teste]
+    
+    S7 --> Cond1{Usuário aprova a implementação?}
+    Cond1 -- Não --> Fix[Desenvolver/Ajustar funcionalidade]
+    Fix --> S6
+    
+    Cond1 -- Sim --> S8_1[8. Reverter alterações dinâmicas:\ncheckout -- .env e docker-compose.yml]
+    S8_1 --> S8_2[Commit e Push na branch isolada]
+    S8_2 --> S9_1[9. Limpeza: docker-compose down\nnas pastas da feature]
+    S9_1 --> S9_2[Remover Git Worktrees e\napagar a pasta raiz da feature]
+    S9_2 --> End([Fim])
+    
+    classDef important fill:#2C3E50,stroke:#3498DB,stroke-width:2px,color:#fff;
+    class S2,S8_2,S9_2 important;
+```
