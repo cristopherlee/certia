@@ -1,5 +1,4 @@
 {
-    "mcpServers": {
-    }
+    "mcpServers": {}
 }
 // setup mcp server in  ~/.gemini\antigravity\mcp_config.json

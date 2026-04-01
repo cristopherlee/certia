@@ -1,0 +1,53 @@
+{
+    "projects": [
+        {
+            "name": "OCPE",
+            "git": "git@bitbucket.org:certi_repos/oc-all-solution.git",
+            "documentation": "PRDs/OCPE",
+            "children": [
+                {
+                    "name": "oc-oneclickpe-api",
+                    "git": "git@bitbucket.org:certi_repos/oc-oneclickpe-api.git",
+                    "type": "none",
+                    "folder": "services",
+                    "children": []
+                },
+                {
+                    "name": "oc-certiio-api",
+                    "git": "git@bitbucket.org:certi_repos/oc-certiio-api.git",
+                    "type": "none",
+                    "folder": "services",
+                    "children": []
+                },
+                {
+                    "name": "oc-export-document-api",
+                    "git": "git@bitbucket.org:certi_repos/oc-export-document-api.git",
+                    "type": "none",
+                    "folder": "services",
+                    "children": []
+                },
+                {
+                    "name": "oc-frontend",
+                    "git": "git@bitbucket.org:certi_repos/oc-frontend.git",
+                    "type": "none",
+                    "folder": "services",
+                    "children": []
+                },
+                {
+                    "name": "oc-grafana",
+                    "git": "git@bitbucket.org:certi_repos/oc-grafana.git",
+                    "type": "none",
+                    "folder": "services",
+                    "children": []
+                },
+                {
+                    "name": "oc-wrapper-grafana-api",
+                    "git": "git@bitbucket.org:certi_repos/oc-wrapper-grafana-api.git",
+                    "type": "none",
+                    "folder": "services",
+                    "children": []
+                }
+            ]
+        }
+    ]
+}

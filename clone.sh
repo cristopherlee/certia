@@ -1,10 +1,8 @@
-#!/bin/bash
-
 # Script para clonar projetos e seus subprojetos (children)
-# Alinhado com a estrutura de data/projetos.json
-
-JSON_FILE="data/projetos.json"
-TARGET_DIR="projetos"
+# Alinhado com a estrutura de projects.json
+JSON_FILE="projects.json"
+DEFAULT_TARGET_DIR="projetos"
+CLONE_BRANCH="development"
 
 # Cores para o output
 GREEN='\033[0;32m'
@@ -24,45 +22,8 @@ if [ ! -f "$JSON_FILE" ]; then
     exit 1
 fi
 
-# Função para instalar dependências
-install_deps() {
-    local dir=$1
-    if [ -f "$dir/package.json" ]; then
-        echo -e "${CYAN}--- Verificando dependências em $dir ---${NC}"
-        (
-            cd "$dir" || exit
-            if [ -f "pnpm-lock.yaml" ] && command -v pnpm &> /dev/null; then
-                echo "Executando pnpm install..."
-                pnpm install
-            elif [ -f "yarn.lock" ] && command -v yarn &> /dev/null; then
-                echo "Executando yarn install..."
-                yarn install
-            elif command -v npm &> /dev/null; then
-                echo "Executando npm install..."
-                npm install
-            else
-                echo -e "${YELLOW}Gerenciador de pacotes não encontrado ou lockfile incompatível. Pulando instalação.${NC}"
-            fi
-        )
-    fi
-}
-
-# Função para trocar para a melhor branch disponível
-checkout_branch() {
-    local dir=$1
-    echo -e "${CYAN}Ajustando branch em $dir...${NC}"
-    (
-        cd "$dir" || exit
-        # Tenta development, depois main, depois master
-        git checkout development 2>/dev/null || \
-        git checkout main 2>/dev/null || \
-        git checkout master 2>/dev/null || \
-        echo -e "${YELLOW}Mantendo branch padrão.${NC}"
-    )
-}
-
-# 1. Carregar lista de projetos (apenas primeiro nível do JSON)
-mapfile -t ALL_PROJECT_NAMES < <(jq -r '.projetos[].name' "$JSON_FILE")
+# 1. Carregar lista de projetos
+mapfile -t ALL_PROJECT_NAMES < <(jq -r '.projects[].name' "$JSON_FILE")
 
 if [ ${#ALL_PROJECT_NAMES[@]} -eq 0 ]; then
     echo -e "${RED}Nenhum projeto encontrado no primeiro nível de $JSON_FILE.${NC}"
@@ -70,14 +31,13 @@ if [ ${#ALL_PROJECT_NAMES[@]} -eq 0 ]; then
 fi
 
 SELECTED_PROJECT=""
+TARGET_DIR=""
 
-# 2. Lógica de seleção (parâmetro por nome, número ou lista interativa)
+# 2. Lógica de seleção de projeto
 if [ -n "$1" ]; then
-    # Se o parâmetro for um número
     if [[ "$1" =~ ^[0-9]+$ ]] && [ "$1" -ge 1 ] && [ "$1" -le "${#ALL_PROJECT_NAMES[@]}" ]; then
         SELECTED_PROJECT="${ALL_PROJECT_NAMES[$(( $1 - 1 ))]}"
     else
-        # Tenta encontrar por nome
         for p in "${ALL_PROJECT_NAMES[@]}"; do
             if [ "$p" == "$1" ]; then
                 SELECTED_PROJECT="$p"
@@ -85,12 +45,12 @@ if [ -n "$1" ]; then
             fi
         done
         if [ -z "$SELECTED_PROJECT" ]; then
-            echo -e "${RED}Erro: Projeto '$1' não encontrado no primeiro nível.${NC}"
+            echo -e "${RED}Erro: Projeto '$1' não encontrado.${NC}"
             exit 1
         fi
     fi
 else
-    PS3="Escolha um número (1-${#ALL_PROJECT_NAMES[@]}): "
+    PS3="Escolha um projeto (1-${#ALL_PROJECT_NAMES[@]}): "
     select opt in "${ALL_PROJECT_NAMES[@]}"; do
         if [ -n "$opt" ]; then
             SELECTED_PROJECT="$opt"
@@ -103,46 +63,54 @@ fi
 
 if [ -z "$SELECTED_PROJECT" ]; then exit 1; fi
 
-# 3. Recuperar dados do projeto selecionado (Nível 1)
-PROJECT_DATA=$(jq -c ".projetos[] | select(.name == \"$SELECTED_PROJECT\")" "$JSON_FILE")
+# 3. Lógica de diretório de destino
+if [ -n "$2" ]; then
+    TARGET_DIR="$2"
+else
+    echo -e "${CYAN}Onde você gostaria de realizar o clone do Base? (Pressione Enter para usar '$DEFAULT_TARGET_DIR')${NC}"
+    read -p "Caminho: " input_dir
+    TARGET_DIR=${input_dir:-$DEFAULT_TARGET_DIR}
+fi
 
-# 4. Extrair TODOS os projetos que possuem atributo 'git' na árvore de forma recursiva
-# Isso garante pegar filhos, netos, etc., mantendo a ordem do JSON
+# 4. Recuperar dados do projeto selecionado
+PROJECT_DATA=$(jq -c ".projects[] | select(.name == \"$SELECTED_PROJECT\")" "$JSON_FILE")
+
+# 5. Extrair repositórios recursivamente
 mapfile -t PROJECTS_WITH_GIT < <(jq -c '
     def find_git:
         if type == "object" then
             (if has("git") then {name, git} else empty end),
+            (if has("github") then {name, git: .github} else empty end),
             (if has("children") and (.children | type == "array") then .children[] | find_git else empty end)
         else empty end;
     find_git
 ' <<< "$PROJECT_DATA")
 
 if [ ${#PROJECTS_WITH_GIT[@]} -eq 0 ]; then
-    echo -e "${RED}Erro: Nenhuma URL git encontrada para o projeto '$SELECTED_PROJECT'.${NC}"
+    echo -e "${RED}Erro: Nenhuma URL git encontrada para '$SELECTED_PROJECT'.${NC}"
     exit 1
 fi
 
 echo -e "\n${GREEN}Iniciando fluxo para: $SELECTED_PROJECT${NC}"
-echo -e "${CYAN}Total de repositórios detectados: ${#PROJECTS_WITH_GIT[@]}${NC}"
+echo -e "${CYAN}Destino: $TARGET_DIR${NC}"
+echo -e "${CYAN}Branch pretendida: $CLONE_BRANCH${NC}"
 
-# 5. O primeiro item com Git é o Projeto Base (Solution)
+# 6. Clonar o Base
 BASE_JSON="${PROJECTS_WITH_GIT[0]}"
 BASE_NAME=$(echo "$BASE_JSON" | jq -r '.name')
 BASE_GIT=$(echo "$BASE_JSON" | jq -r '.git')
 
-# 6. Preparar diretório 'projetos' e clonar o Base
 mkdir -p "$TARGET_DIR"
-cd "$TARGET_DIR" || exit
+cd "$TARGET_DIR" || { echo -e "${RED}Erro ao entrar no diretório $TARGET_DIR${NC}"; exit 1; }
 
 echo -e "\n${YELLOW}>>> [BASE] Clonando: $BASE_NAME${NC}"
 if [ -d "$BASE_NAME" ]; then
     echo "Pasta '$BASE_NAME' já existe."
 else
-    if git clone "$BASE_GIT" "$BASE_NAME"; then
-        checkout_branch "$BASE_NAME"
-    else
-        echo -e "${RED}Falha ao clonar projeto base $BASE_NAME. Abortando.${NC}"
-        exit 1
+    # Tenta clonar direto na branch development
+    if ! git clone -b "$CLONE_BRANCH" "$BASE_GIT" "$BASE_NAME" 2>/dev/null; then
+        echo -e "${YELLOW}Branch $CLONE_BRANCH não encontrada no base. Clonando branch padrão...${NC}"
+        git clone "$BASE_GIT" "$BASE_NAME"
     fi
 fi
 
@@ -155,9 +123,6 @@ if ! grep -q "^services/" .gitignore; then
     echo -e "\n# Subprojetos gerenciados pelo clone.sh\nservices/*" >> .gitignore
     echo -e "${CYAN}.gitignore atualizado para ocultar 'services/'.${NC}"
 fi
-
-# Instala dependências do projeto base
-install_deps "."
 
 # 8. Clonar todos os demais repositórios em services/
 if [ ${#PROJECTS_WITH_GIT[@]} -gt 1 ]; then
@@ -173,12 +138,9 @@ if [ ${#PROJECTS_WITH_GIT[@]} -gt 1 ]; then
         if [ -d "services/$CHILD_NAME" ]; then
             echo "Pasta 'services/$CHILD_NAME' já existe."
         else
-            if git clone "$CHILD_GIT" "services/$CHILD_NAME"; then
-                echo -e "${GREEN}Clone de $CHILD_NAME concluído.${NC}"
-                checkout_branch "services/$CHILD_NAME"
-                install_deps "services/$CHILD_NAME"
-            else
-                echo -e "${RED}AVISO: Falha ao clonar $CHILD_NAME de $CHILD_GIT${NC}"
+            if ! git clone -b "$CLONE_BRANCH" "$CHILD_GIT" "services/$CHILD_NAME" 2>/dev/null; then
+                echo -e "${YELLOW}Branch $CLONE_BRANCH não encontrada em $CHILD_NAME. Clonando branch padrão...${NC}"
+                git clone "$CHILD_GIT" "services/$CHILD_NAME"
             fi
         fi
     done

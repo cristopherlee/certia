@@ -1,0 +1,16 @@
+tasks/*/
+mcp_config.env
+prompt.md
+
+# Ignorar diretórios de agentes e projetos
+.agent/*/
+projetos/*/
+
+# Ignorar tarefas
+tasks/*/
+
+# Ignorar arquivos de configuração sensíveis
+mcp_config.env
+
+# Ignorar arquivos de prompt
+prompt.md

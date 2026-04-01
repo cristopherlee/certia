@@ -1,0 +1,5 @@
+# Ignore any folder inside tasks and projetos
+tasks/*/
+projetos/*/
+task-*.json
+.agent/mcp_config.json

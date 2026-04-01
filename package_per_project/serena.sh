@@ -52,5 +52,11 @@ fi
 maybe_start_serena || true
 
 pushd "$TARGET" >/dev/null
+# TARGET_PATH=".agent"
+# if [ -d "$TARGET_PATH" ]; then
+# 	yes N | uvx --from git+https://github.com/oraios/serena serena project index "$TARGET_PATH" --exclude "tasks/**"
+# fi
+
+# Indexar o projeto 'certia' (raiz), ignorando tudo dentro de 'tasks/'
 yes N | uvx --from git+https://github.com/oraios/serena serena project index .
 popd >/dev/null
