@@ -1,6 +1,6 @@
 # Script para clonar projetos e seus subprojetos (children)
 # Alinhado com a estrutura de projects.json
-JSON_FILE="projects.json"
+JSON_FILE="$(cd "$(dirname "$0")" && pwd)/../projects.json"
 DEFAULT_TARGET_DIR="projetos"
 CLONE_BRANCH="development"
 

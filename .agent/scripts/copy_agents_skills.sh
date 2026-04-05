@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 TASK_DIR="$WORKSPACE_ROOT/tasks/$TASK_NAME"
-JSON_FILE="$TASK_DIR/task-$TASK_NAME.json"
+JSON_FILE="$TASK_DIR/task.json"
 
 if [ -z "$TASK_NAME" ]; then
     echo "Erro: Forneça o nome da tarefa como parâmetro."
@@ -28,7 +28,7 @@ import json, sys, shutil, os
 task_name = sys.argv[1]
 workspace = sys.argv[2]
 task_dir = os.path.join(workspace, 'tasks', task_name)
-json_path = os.path.join(task_dir, f'task-{task_name}.json')
+json_path = os.path.join(task_dir, 'task.json')
 
 if not os.path.exists(json_path):
     print(f'❌ Erro: JSON não encontrado em {json_path}')
@@ -66,12 +66,12 @@ try:
         if os.path.exists(potential_path) and os.path.isdir(potential_path):
             target_project_root = potential_path
 
-    print(f'==> Alvo da instalação: {target_project_root}')
+    print(f'==> Alvo da instalação (.agent): {target_project_root}/.agent/')
     
-    # Garantir que a cópia ocorra na raiz da tarefa primeiro
-    task_agent_dir = os.path.join(task_dir, '.agent')
-    dest_agents_dir = os.path.join(task_agent_dir, 'agents')
-    dest_skills_dir = os.path.join(task_agent_dir, 'skills')
+    # Destinos finais de agents e skills
+    proj_agent_dir = os.path.join(target_project_root, '.agent')
+    dest_agents_dir = os.path.join(proj_agent_dir, 'agents')
+    dest_skills_dir = os.path.join(proj_agent_dir, 'skills')
     os.makedirs(dest_agents_dir, exist_ok=True)
     os.makedirs(dest_skills_dir, exist_ok=True)
 
@@ -100,13 +100,13 @@ try:
             if os.path.exists(dest_path):
                 shutil.rmtree(dest_path)
             shutil.copytree(found_src, dest_path, dirs_exist_ok=True)
-            print(f'✅ Pasta {dest_name} copiada recursivamente.')
+            print(f'✅ Pasta {dest_name} copiada para o projeto.')
         else:
             # Cópia de arquivo individual
             if os.path.exists(dest_path):
                 os.remove(dest_path)
             shutil.copy2(found_src, dest_path)
-            print(f'✅ Arquivo {dest_name} copiado.')
+            print(f'✅ Arquivo {dest_name} copiado para o projeto.')
 
     print(f'--> Iniciando cópia de {len(agents)} agentes...')
     for agent in agents:
@@ -115,23 +115,59 @@ try:
     print(f'--> Iniciando cópia de {len(skills)} skills...')
     for skill in skills:
         smart_copy(skill, os.path.join(main_root, '.agent/skills'), dest_skills_dir)
-
-    # Sincronizar com o diretório do projeto, se for diferente da raiz da tarefa
-    if target_project_root != task_dir:
-        print(f'==> Sincronizando agentes e skills para a raiz do projeto em {target_project_root}/.agent/')
-        proj_agent_dir_base = os.path.join(target_project_root, '.agent')
-        os.makedirs(proj_agent_dir_base, exist_ok=True)
         
-        for sub in ['agents', 'skills']:
-            src_sub = os.path.join(task_agent_dir, sub)
-            dst_sub = os.path.join(proj_agent_dir_base, sub)
-            if os.path.exists(src_sub):
-                print(f'    Sincronizando {sub}...')
-                if os.path.exists(dst_sub):
-                    shutil.rmtree(dst_sub)
-                shutil.copytree(src_sub, dst_sub, dirs_exist_ok=True)
-                print(f'    ✅ {sub} sincronizado.')
+    # Atualizar arquivos de ignore baseados nos microservices listados
+    selected_services = data.get('microservices', [])
+    if selected_services:
+        print(f'--> Configurando .geminiignore e .opencodeignore para os microserviços...')
+        projects_json_path = os.path.join(main_root, 'projects.json')
+        if os.path.exists(projects_json_path):
+            with open(projects_json_path, 'r', encoding='utf-8') as pf:
+                projects_data = json.load(pf)
+                
+            project_info = None
+            for p in projects_data.get('projects', []):
+                if p.get('name') == project_name:
+                    project_info = p
+                    break
             
+            if project_info:
+                all_services = [child.get('name') for child in project_info.get('children', [])]
+                services_to_ignore = [s for s in all_services if s not in selected_services]
+                
+                ignore_files = ['.geminiignore', '.opencodeignore']
+                for filename in ignore_files:
+                    filepath = os.path.join(target_project_root, filename)
+                    content = []
+                    if os.path.exists(filepath):
+                        with open(filepath, 'r', encoding='utf-8') as igf:
+                            content = igf.readlines()
+                    
+                    # Remover bloqueio total /services/
+                    content = [line for line in content if line.strip() != '/services/']
+                    
+                    # Se o comentário já existir, remove/limpa pular o append e reconstruir
+                    new_content = []
+                    header = '# Microservicos ignorados pela tarefa ' + task_name
+                    for line in content:
+                        if header in line:
+                            break
+                        new_content.append(line)
+                    
+                    nl = chr(10)
+                    new_lines = [nl + header + nl]
+                    for s in services_to_ignore:
+                        new_lines.append('services/' + s + '/' + nl)
+                        
+                    with open(filepath, 'w', encoding='utf-8') as igf:
+                        igf.writelines(new_content)
+                        if new_content and not new_content[-1].endswith(nl):
+                            igf.write(nl)
+                        igf.writelines(new_lines)
+                print(f'✅ Atualizou ignores, escondendo {len(services_to_ignore)} microserviços.')
+            else:
+                print(f'⚠️ Projeto {project_name} não encontrado no projects.json.')
+
 except Exception as e:
     print(f'❌ Erro durante a cópia: {e}')
     sys.exit(1)

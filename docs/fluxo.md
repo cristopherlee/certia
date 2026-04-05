@@ -40,14 +40,15 @@ CERTIA(OPENCODE) - PREPARAÇÃO PARA EXECUÇÃO (Dentro da pasta task OCK-15)
           - qual projeto? OCPE (pega do json)
         - sh
             - copiar arquivos ignore pra cada pasta
-        =======================================================
 
           PROMPT
           - ajustando esses arquivos ignore de acordo com o catalogo de microserviços que deverão ser enxergados vide descricao
           - pedir pra ia editar os ignores de acordo com a descricao e catalogo de microservicos
         
         - clone.sh - do all solution e services 
-            - development/branch por parametro
+            - development
+        =======================================================
+            branch por parametro
             - as branches criadas nos microserviços manualmente
           
       

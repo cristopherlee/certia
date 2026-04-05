@@ -15,8 +15,8 @@ Este workflow deve ser executado no início de qualquer nova demanda para organi
 2. **Criação da Estrutura e Contextualização**
    - **Processamento**: 
      - Com o nome fornecido, crie a pasta correspondente: `mkdir -p tasks/<nome_da_tarefa>`.
-     - **Ação**: Efetue a cópia da pasta `.agent` da raiz do projeto principal para a pasta da tarefa em `tasks/<nome_da_tarefa>/.agent/`, **com exceção das pastas `agents`,  `.serena` e `skills`**.
-     - **Ação Complementar**: Execute o script de preparação (root): `./preparatorio.sh <nome_da_tarefa> <nome_do_projeto>` para realizar a clonagem do projeto e configurações base.
+     - **Ação Complementar**: Execute o script de preparação (root): `bash script/preparatorio.sh <nome_da_tarefa> <nome_do_projeto>`.
+     - **Nota**: Este script realizará a clonagem e configurará a pasta `.agent` **diretamente dentro da pasta do projeto clonado** (ex: `tasks/<nome_da_tarefa>/<nome_do_projeto>/.agent/`), mantendo a raiz da tarefa limpa.
 
 3. **Análise de Escopo e Dependências**
    - **Ação**: Utilizando os dados coletados (nome da tarefa, descrição e projeto escolhido), analise os arquivos de requisitos de produto (dentro de `PRDs/<nome_do_projeto>/` ou similar) e o documento de arquitetura correspondente (ex: `architecture.md` ou `documentation/ARCHITECTURE.md` do projeto escolhido).
@@ -27,11 +27,12 @@ Este workflow deve ser executado no início de qualquer nova demanda para organi
 
 4. **Isolamento de Contexto (Ignores)**
    - **Ação**: Identifique e liste os caminhos de todos os microserviços do projeto que **não** farão parte desta implementação.
-   - Atualize ou crie os arquivos `.geminiignore` e `.opencodeignore` na raiz da tarefa (`tasks/<nome_da_tarefa>/`) ou na base do repositório para adicionar os microserviços listados, garantindo que contextos e arquivos irrelevantes sejam omitidos do contexto da IA.
+   - Atualize ou crie os arquivos `.geminiignore` e `.opencodeignore` **dentro da pasta do projeto clonado** (`tasks/<nome_da_tarefa>/<nome_do_projeto>/`) para adicionar os microserviços listados, garantindo que contextos e arquivos irrelevantes sejam omitidos do contexto da IA.
 
 5. **Consolidação do Metadata e Finalização**
-   - **Ação**: Salve o Nome, Descrição, informações do Projeto, Microserviços previstos, e as listas preenchidas de Agentes e Skills em um arquivo único `task-<nome_da_tarefa>.json` dentro da pasta `tasks/<nome_da_tarefa>/`. 
-   - **Regra Importante**: As arrays `"agents"` e `"skills"` no JSON gerado **NÃO PODEM ESTAR VAZIAS**. Você deve obrigatoriamente realizar a inferência solicitada no Passo 3 e escrever na estrutura JSON os nomes exatos correspondentes. Este é o passo crucial para persistir o contexto e permitir a cópia automatizada.
+   - **Ação**: Copie o arquivo `task.json` localizado na raiz do projeto principal para `tasks/<nome_da_tarefa>/task.json`.
+   - **Ação Complementar**: Edite o arquivo copiado preenchendo o Nome, Descrição, informações do Projeto, Microserviços previstos, e as listas de Agentes e Skills inferidas no Passo 3.
+   - **Regra Importante**: As arrays `"agents"` e `"skills"` no JSON gerado **NÃO PODEM ESTAR VAZIAS**. Você deve obrigatoriamente realizar a inferência solicitada no Passo 3 e escrever na estrutura JSON os nomes exatos correspondentes. Este é o passo crucial para permitir a cópia automatizada no passo seguinte.
 
 6. **Cópia de Agentes e Skills (Finalização)**
    - **Ação**: Após a criação definitiva do arquivo JSON, efetue a cópia física de todos os recursos identificados.
@@ -39,5 +40,6 @@ Este workflow deve ser executado no início de qualquer nova demanda para organi
      ```bash
      bash .agent/scripts/copy_agents_skills.sh <nome_da_tarefa>
      ```
-   - **Ação Final**: Informe ao usuário que o ambiente de tarefa foi integralmente preparado com sucesso, configurado com os microserviços alvo, regras de ignore e agentes/skills copiados e sincronizados.
+   - **Nota**: A cópia será feita para a pasta `.agent` dentro do projeto clonado.
+   - **Ação Final**: Informe ao usuário que o ambiente de tarefa foi integralmente preparado com sucesso dentro da pasta do repositório clonado.
    - Sugira a execução do workflow `/plan` para iniciar o detalhamento técnico baseado no projeto selecionado.
