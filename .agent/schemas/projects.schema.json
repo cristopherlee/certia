@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Projects Catalog Schema",
+  "description": "Schema for the projects.json file used to map project paths to names.",
+  "type": "object",
+  "properties": {
+    "projects": {
+      "type": "object",
+      "description": "A dictionary where keys are absolute paths and values are project slugs/names.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["projects"],
+  "additionalProperties": false
+}

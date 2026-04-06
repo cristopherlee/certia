@@ -10,7 +10,7 @@ Este workflow deve ser executado no início de qualquer nova demanda para organi
    - **Ação**: Pergunte ao usuário: 
      - "Qual é o nome ou ID da tarefa que vamos iniciar?"
      - "Qual é a descrição desta tarefa?"
-   - **Ação Complementar**: Leia o conteúdo do arquivo `projects.json` na raiz do projeto principal, apresente a lista ao usuário e pergunte: "Para qual projeto esta tarefa se aplica?".
+   - **Ação Complementar**: Leia o conteúdo do arquivo `projects.json` (geralmente em `~/.gemini/projects.json`), valide-o se necessário usando `.agent/scripts/verify_projects.py`, apresente a lista ao usuário e pergunte: "Para qual projeto esta tarefa se aplica?".
 
 2. **Criação da Estrutura e Contextualização**
    - **Processamento**: 
@@ -22,7 +22,7 @@ Este workflow deve ser executado no início de qualquer nova demanda para organi
    - **Ação**: Utilizando os dados coletados (nome da tarefa, descrição e projeto escolhido), analise os arquivos de requisitos de produto (dentro de `docs/PRDs/<nome_do_projeto>/` ou similar) e o documento de arquitetura correspondente (ex: `architecture.md` ou `documentation/ARCHITECTURE.md` do projeto escolhido).
    - Com base nessa análise detalhada, determine explicitamente e infira, de maneira automática, os seguintes pontos:
      - Quais **microserviços** do projeto sofrerão interação ou alteração nesta tarefa.
-     - Quais **agentes** serão necessários para executar a análise e a implementação. **IMPORTANTE**: Use APENAS o arquivo `AGENT_CATALOG.md` ou `x.md` na raiz para descobrir e escolher os agentes avaliando a tabela. **NÃO LEIA** a pasta `.agent/agents/` arquivo por arquivo para ser mais eficiente.
+     - Quais **agentes** serão necessários para executar a análise e a implementação. **IMPORTANTE**: Use APENAS o arquivo `AGENT_CATALOG.md` ou `x.md` na raiz para descobrir e escolher os agentes avaliando a tabela. **NÃO LEIA** a pasta `.agent/agents/` arquivo por arquivo para ser mais eficiente. **Dica**: Execute `.agent/scripts/verify_catalog.py` se tiver dúvidas sobre a integridade do catálogo.
      - Quais **skills** serão necessárias para os agentes alocados. **IMPORTANTE**: Infira os nomes das skills avaliando as associadas aos agentes na tabela do `AGENT_CATALOG.md` ou `x.md`. **NÃO LEIA** as pastas dentro de `.agent/skills/`. As pastas de agentes e skills só devem ser consultadas pelo script de cópia.
 
 4. **Isolamento de Contexto (Ignores)**

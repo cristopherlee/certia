@@ -9,6 +9,6 @@ if [ -z "$TASK_NAME" ] || [ -z "$PROJECT_NAME" ]; then
     exit 1
 fi
 
-# Chama o script interno de preparação passando os argumentos básicos
+# Chama o script interno de preparação passando todos os argumentos recebidos
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-bash "$SCRIPT_DIR/../.agent/scripts/prepare_task.sh" "$TASK_NAME" "$PROJECT_NAME"
+bash "$SCRIPT_DIR/../.agent/scripts/prepare_task.sh" "$@"
