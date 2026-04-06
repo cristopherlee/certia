@@ -32,7 +32,7 @@ O Serena está configurado para:
 Para atualizar o índice do projeto e garantir que a IA tenha acesso aos símbolos mais recentes, execute:
 
 ```bash
-./serena.sh
+bash script/serena.sh
 ```
 
 A configuração detalhada pode ser encontrada em `.serena/project.yml`.

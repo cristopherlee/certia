@@ -26,8 +26,8 @@ Este workflow deve ser executado no início de qualquer nova demanda para organi
      - Quais **skills** serão necessárias para os agentes alocados. **IMPORTANTE**: Infira os nomes das skills avaliando as associadas aos agentes na tabela do `AGENT_CATALOG.md` ou `x.md`. **NÃO LEIA** as pastas dentro de `.agent/skills/`. As pastas de agentes e skills só devem ser consultadas pelo script de cópia.
 
 4. **Isolamento de Contexto (Ignores)**
-   - **Ação**: Identifique e liste os caminhos de todos os microserviços do projeto que **não** farão parte desta implementação.
-   - Atualize ou crie os arquivos `.geminiignore` e `.opencodeignore` **dentro da pasta do projeto clonado** (`tasks/<nome_da_tarefa>/<nome_do_projeto>/`) para adicionar os microserviços listados, garantindo que contextos e arquivos irrelevantes sejam omitidos do contexto da IA.
+    - **Ação**: Identifique e liste os caminhos de todos os microserviços do projeto que **não** farão parte desta implementação.
+    - **Nota**: Estes microserviços devem ser informados no `task.json` (Passo 5). A atualização física dos arquivos `.geminiignore` e `.opencodeignore` será realizada de forma automática pelo script no Passo 6, visando evitar duplicidade de entradas.
 
 5. **Consolidação do Metadata e Finalização**
    - **Ação**: Copie o arquivo `task.json` localizado na raiz do projeto principal para `tasks/<nome_da_tarefa>/task.json`.

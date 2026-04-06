@@ -146,25 +146,31 @@ try:
                     # Remover bloqueio total /services/
                     content = [line for line in content if line.strip() != '/services/']
                     
-                    # Se o comentário já existir, remove/limpa pular o append e reconstruir
+                    # Limpeza robusta: Remover blocos antigos se existirem para evitar duplicidade
+                    header = f'# Microservicos ignorados pela tarefa {task_name}'
                     new_content = []
-                    header = '# Microservicos ignorados pela tarefa ' + task_name
                     for line in content:
                         if header in line:
                             break
                         new_content.append(line)
                     
-                    nl = chr(10)
-                    new_lines = [nl + header + nl]
-                    for s in services_to_ignore:
-                        new_lines.append('services/' + s + '/' + nl)
+                    # Remover quebras de linha excedentes no final do conteúdo original
+                    while new_content and not new_content[-1].strip():
+                        new_content.pop()
+                    
+                    nl = '\n'
+                    # Monta o novo bloco (quebra inicial + header + lista unica de caminhos)
+                    new_lines = [nl, header + nl]
+                    for s in sorted(list(set(services_to_ignore))):
+                        new_lines.append(f'services/{s}/{nl}')
                         
                     with open(filepath, 'w', encoding='utf-8') as igf:
                         igf.writelines(new_content)
-                        if new_content and not new_content[-1].endswith(nl):
+                        # Garante uma separação limpa se o conteúdo original existir
+                        if new_content:
                             igf.write(nl)
                         igf.writelines(new_lines)
-                print(f'✅ Atualizou ignores, escondendo {len(services_to_ignore)} microserviços.')
+                print(f'✅ Atualizou ignores ({len(services_to_ignore)} microserviços).')
             else:
                 print(f'⚠️ Projeto {project_name} não encontrado no projects.json.')
 

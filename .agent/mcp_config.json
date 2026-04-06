@@ -1,4 +1,70 @@
 {
-    "mcpServers": {}
+    "mcpServers": {
+        "shadcn": {
+            "command": "npx",
+            "args": [
+                "shadcn@latest",
+                "mcp"
+            ]
+        },
+        "sonarqube": {
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--pull=always",
+                "-e",
+                "SONARQUBE_TOKEN",
+                "mcp/sonarqube"
+            ],
+            "env": {
+                "SONARQUBE_TOKEN": "${SONARQUBE_TOKEN}"
+            }
+        },
+        "mcp-atlassian": {
+            "command": "uvx",
+            "args": [
+                "mcp-atlassian"
+            ],
+            "env": {
+                "JIRA_URL": "https://fundacao-certi.atlassian.net",
+                "JIRA_USERNAME": "clh@certi.org.br",
+                "JIRA_API_TOKEN": "${JIRA_API_TOKEN}",
+                "CONFLUENCE_URL": "https://fundacao-certi.atlassian.net/wiki",
+                "CONFLUENCE_USERNAME": "clh@certi.org.br",
+                "CONFLUENCE_API_TOKEN": "${CONFLUENCE_API_TOKEN}"
+            }
+        },
+        "serena": {
+            "command": "uvx",
+            "args": [
+                "--from",
+                "git+https://github.com/oraios/serena",
+                "serena",
+                "start-mcp-server",
+                "--context",
+                "ide"
+            ],
+            "env": {
+                "PYRIGHT_TIMEOUT_MS": "300000",
+                "SERENA_PYRIGHT_TIMEOUT_MS": "300000",
+                "SOLIDLSP_PYRIGHT_TIMEOUT_MS": "300000"
+            }
+        },
+        "context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp",
+                "--api-key",
+                "${CONTEXT7_API_KEY}"
+            ]
+        },
+        "context-mode": {
+            "command": "context-mode"
+        }
+    }
 }
 // setup mcp server in  ~/.gemini\antigravity\mcp_config.json
