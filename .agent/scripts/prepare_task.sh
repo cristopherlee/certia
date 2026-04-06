@@ -27,11 +27,11 @@ fi
 echo "==> Preparando ambiente para a tarefa: $TASK_NAME (Projeto: $PROJECT_NAME)"
 
 # 1. Executar o clone.sh para o projeto especificado na pasta da tarefa
-if [ -f "$WORKSPACE_ROOT/script/clone.sh" ]; then
+if [ -f "$WORKSPACE_ROOT/scripts/clone.sh" ]; then
     echo "--> Executando clone.sh para o projeto $PROJECT_NAME no diretório $RELATIVE_TASK_DIR..."
-    bash "$WORKSPACE_ROOT/script/clone.sh" "$PROJECT_NAME" "$RELATIVE_TASK_DIR"
+    bash "$WORKSPACE_ROOT/scripts/clone.sh" "$PROJECT_NAME" "$RELATIVE_TASK_DIR"
 else
-    echo "--> [ERRO] clone.sh não encontrado em script/."
+    echo "--> [ERRO] clone.sh não encontrado em scripts/."
     exit 1
 fi
 
@@ -43,10 +43,10 @@ fi
 
 echo "--> Alvo da configuração base: $TARGET_BASE"
 
-# 3. Copiar arquivos base de package_per_project
-if [ -d "$WORKSPACE_ROOT/package_per_project" ]; then
-    echo "--> Copiando arquivos de package_per_project para $TARGET_BASE..."
-    cp -r "$WORKSPACE_ROOT/package_per_project/." "$TARGET_BASE/"
+# 3. Copiar arquivos base de task_template
+if [ -d "$WORKSPACE_ROOT/task_template" ]; then
+    echo "--> Copiando arquivos de task_template para $TARGET_BASE..."
+    cp -r "$WORKSPACE_ROOT/task_template/." "$TARGET_BASE/"
 fi
 
 # 4. Copiar estrutura .agent
@@ -59,15 +59,6 @@ if [ -d "$WORKSPACE_ROOT/.agent" ]; then
 else
     echo "--> [ERRO] Pasta .agent original não encontrada."
     exit 1
-fi
-
-# 5. Cópia do Metadata task.json da raiz
-echo "--> Copiando metadata task.json da raiz para $TASK_DIR/task.json"
-if [ -f "$WORKSPACE_ROOT/task.json" ]; then
-    cp "$WORKSPACE_ROOT/task.json" "$TASK_DIR/task.json"
-else
-    echo "--> [AVISO] task.json não encontrado na raiz. Criando um arquivo vazio."
-    touch "$TASK_DIR/task.json"
 fi
 
 echo "==> Sucesso! Ambiente preparado em $TASK_DIR"

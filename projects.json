@@ -3,7 +3,7 @@
         {
             "name": "OCPE",
             "git": "git@bitbucket.org:certi_repos/oc-all-solution.git",
-            "documentation": "PRDs/OCPE",
+            "documentation": "docs/PRDs/OCPE",
             "children": [
                 {
                     "name": "oc-oneclickpe-api",

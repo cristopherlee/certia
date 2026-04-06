@@ -9,6 +9,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 TASK_DIR="$WORKSPACE_ROOT/tasks/$TASK_NAME"
+# Busca o json inicialmente na raiz da tarefa (legado)
 JSON_FILE="$TASK_DIR/task.json"
 
 if [ -z "$TASK_NAME" ]; then
@@ -30,8 +31,18 @@ workspace = sys.argv[2]
 task_dir = os.path.join(workspace, 'tasks', task_name)
 json_path = os.path.join(task_dir, 'task.json')
 
+# Tenta encontrar o json na subpasta do projeto se nao estiver na raiz
 if not os.path.exists(json_path):
-    print(f'❌ Erro: JSON não encontrado em {json_path}')
+    print(f'--> task.json não encontrado na raiz da tarefa. Buscando em subpastas...')
+    for folder in os.listdir(task_dir):
+        potential_json = os.path.join(task_dir, folder, 'task.json')
+        if os.path.isdir(os.path.join(task_dir, folder)) and os.path.exists(potential_json):
+            json_path = potential_json
+            print(f'--> task.json encontrado em {folder}/task.json')
+            break
+
+if not os.path.exists(json_path):
+    print(f'❌ Erro: JSON não encontrado em {task_dir} ou subpastas.')
     sys.exit(1)
 
 try:

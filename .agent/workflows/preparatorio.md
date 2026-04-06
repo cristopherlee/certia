@@ -15,11 +15,11 @@ Este workflow deve ser executado no início de qualquer nova demanda para organi
 2. **Criação da Estrutura e Contextualização**
    - **Processamento**: 
      - Com o nome fornecido, crie a pasta correspondente: `mkdir -p tasks/<nome_da_tarefa>`.
-     - **Ação Complementar**: Execute o script de preparação (root): `bash script/preparatorio.sh <nome_da_tarefa> <nome_do_projeto>`.
+     - **Ação Complementar**: Execute o script de preparação (root): `bash scripts/preparatorio.sh <nome_da_tarefa> <nome_do_projeto>`.
      - **Nota**: Este script realizará a clonagem e configurará a pasta `.agent` **diretamente dentro da pasta do projeto clonado** (ex: `tasks/<nome_da_tarefa>/<nome_do_projeto>/.agent/`), mantendo a raiz da tarefa limpa.
 
 3. **Análise de Escopo e Dependências**
-   - **Ação**: Utilizando os dados coletados (nome da tarefa, descrição e projeto escolhido), analise os arquivos de requisitos de produto (dentro de `PRDs/<nome_do_projeto>/` ou similar) e o documento de arquitetura correspondente (ex: `architecture.md` ou `documentation/ARCHITECTURE.md` do projeto escolhido).
+   - **Ação**: Utilizando os dados coletados (nome da tarefa, descrição e projeto escolhido), analise os arquivos de requisitos de produto (dentro de `docs/PRDs/<nome_do_projeto>/` ou similar) e o documento de arquitetura correspondente (ex: `architecture.md` ou `documentation/ARCHITECTURE.md` do projeto escolhido).
    - Com base nessa análise detalhada, determine explicitamente e infira, de maneira automática, os seguintes pontos:
      - Quais **microserviços** do projeto sofrerão interação ou alteração nesta tarefa.
      - Quais **agentes** serão necessários para executar a análise e a implementação. **IMPORTANTE**: Use APENAS o arquivo `AGENT_CATALOG.md` ou `x.md` na raiz para descobrir e escolher os agentes avaliando a tabela. **NÃO LEIA** a pasta `.agent/agents/` arquivo por arquivo para ser mais eficiente.
@@ -30,8 +30,8 @@ Este workflow deve ser executado no início de qualquer nova demanda para organi
     - **Nota**: Estes microserviços devem ser informados no `task.json` (Passo 5). A atualização física dos arquivos `.geminiignore` e `.opencodeignore` será realizada de forma automática pelo script no Passo 6, visando evitar duplicidade de entradas.
 
 5. **Consolidação do Metadata e Finalização**
-   - **Ação**: Copie o arquivo `task.json` localizado na raiz do projeto principal para `tasks/<nome_da_tarefa>/task.json`.
-   - **Ação Complementar**: Edite o arquivo copiado preenchendo o Nome, Descrição, informações do Projeto, Microserviços previstos, e as listas de Agentes e Skills inferidas no Passo 3.
+   - **Ação**: Verifique o arquivo `task.json` localizado agora dentro da pasta do projeto clonado (`tasks/<nome_da_tarefa>/<projeto>/task.json`), copiado automaticamente da pasta `task_template/` da raiz.
+   - **Ação Complementar**: Edite o arquivo localizado no novo destino (`tasks/<nome_da_tarefa>/<projeto>/task.json`) preenchendo o Nome, Descrição, informações do Projeto, Microserviços previstos, e as listas de Agentes e Skills inferidas no Passo 3.
    - **Regra Importante**: As arrays `"agents"` e `"skills"` no JSON gerado **NÃO PODEM ESTAR VAZIAS**. Você deve obrigatoriamente realizar a inferência solicitada no Passo 3 e escrever na estrutura JSON os nomes exatos correspondentes. Este é o passo crucial para permitir a cópia automatizada no passo seguinte.
 
 6. **Cópia de Agentes e Skills (Finalização)**
