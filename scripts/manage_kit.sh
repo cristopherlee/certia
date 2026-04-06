@@ -4,8 +4,8 @@
 # ANTIGRAVITY KIT MANAGER - Menu Interativo
 # ==============================================================================
 
-# Script directory
-SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+# Project root (one level up from scripts/)
+PROJECT_ROOT=$(cd "$(dirname "$0")/.." && pwd)
 
 # Colors
 GREEN='\033[0;32m'
@@ -36,12 +36,12 @@ while true; do
     case "$choice" in
         1)
             echo -e "\n${YELLOW}Executando Lint de Agentes...${NC}"
-            python3 "$SCRIPT_DIR/.agent/scripts/verify_catalog.py"
+            python3 "$PROJECT_ROOT/.agent/scripts/verify_catalog.py"
             read -p "Pressione Enter para voltar ao menu..."
             ;;
         2)
             echo -e "\n${YELLOW}Executando Validação de Projetos...${NC}"
-            python3 "$SCRIPT_DIR/.agent/scripts/verify_projects.py"
+            python3 "$PROJECT_ROOT/.agent/scripts/verify_projects.py"
             read -p "Pressione Enter para voltar ao menu..."
             ;;
         3)
@@ -50,7 +50,7 @@ while true; do
             if [ -z "$app_url" ]; then
                 echo -e "${RED}Erro: URL é necessária para verificação completa.${NC}"
             else
-                python3 "$SCRIPT_DIR/.agent/scripts/verify_all.py" "." --url "$app_url"
+                python3 "$PROJECT_ROOT/.agent/scripts/verify_all.py" "." --url "$app_url"
             fi
             read -p "Pressione Enter para voltar ao menu..."
             ;;

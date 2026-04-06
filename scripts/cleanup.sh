@@ -2,10 +2,10 @@
 
 # Configuration
 TASKS_DIR="tasks"
-ARCHIVES_DIR="archives"
+COMPLETED_TASKS_DIR="completed_tasks"
 
-# Ensure archives directory exists
-mkdir -p "$ARCHIVES_DIR"
+# Ensure completed tasks directory exists
+mkdir -p "$COMPLETED_TASKS_DIR"
 
 function usage() {
     echo "Usage: $0 [list | archive <task_name> | remove <task_name>]"
@@ -34,8 +34,8 @@ case "$1" in
         TASK_PATH="$TASKS_DIR/$TASK_NAME"
         if [ -d "$TASK_PATH" ]; then
             echo "Archiving task: $TASK_NAME..."
-            tar -czf "$ARCHIVES_DIR/$TASK_NAME.tar.gz" -C "$TASKS_DIR" "$TASK_NAME"
-            echo "Archive created at $ARCHIVES_DIR/$TASK_NAME.tar.gz"
+            tar -czf "$COMPLETED_TASKS_DIR/$TASK_NAME.tar.gz" -C "$TASKS_DIR" "$TASK_NAME"
+            echo "Archive created at $COMPLETED_TASKS_DIR/$TASK_NAME.tar.gz"
             rm -rf "$TASK_PATH"
             echo "Task directory $TASK_PATH removed."
         else

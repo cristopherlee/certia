@@ -28,6 +28,7 @@ usage() {
     echo "  clone [repo] [dest]    Clona um repositório legado do projeto."
     echo "  lint-kit               Valida catálogo de agentes e schema de projetos."
     echo "  manage-kit             Abre o menu interativo de gerenciamento do kit."
+    echo "  clear-completed        Remove todos os arquivos de completed_tasks/."
     echo "  help                   Mostra esta mensagem de ajuda."
     echo ""
     echo "Exemplos:"
@@ -88,7 +89,13 @@ case "$1" in
         ;;
 
     "manage-kit")
-        bash "$SCRIPT_DIR/manage_kit.sh"
+        bash "$SCRIPT_DIR/scripts/manage_kit.sh"
+        ;;
+
+    "clear-completed")
+        echo "Limpando diretório de tarefas concluídas (completed_tasks/)..."
+        rm -rf "$SCRIPT_DIR/completed_tasks/"*
+        echo "Concluído."
         ;;
 
     "help"|"--help"|"-h")
